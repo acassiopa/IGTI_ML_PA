@@ -9,13 +9,13 @@ security    = 'BBAS3'
 news_source = 'Infomoney'
 
 # Obtain urls
-urls_file = Path('../arquivos/input_test.txt')
-# urls_file = Path('../arquivos/BBAS3_InfoMoney.txt')
+# urls_file = Path('../arquivos/input_test.txt')
+urls_file = Path('../arquivos/links_BBAS3_InfoM.txt')
 with open(urls_file, 'r') as url_list_f:
     url_list = url_list_f.read().split()
 
 news_array = list()
-valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a']
+valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a', 'spam']
 
 for url in url_list:
 
@@ -53,5 +53,6 @@ for url in url_list:
     news_array.append(news_data)
 
 news_df = DataFrame(news_array, columns=['code', 'source', 'url', 'title', 'datetime', 'raw_text'])
-news_df.to_csv(Path('../arquivos/Test.csv'), sep=';')
+news_df.to_csv(Path('../arquivos/BBAS3_data.csv'))
+# news_df.to_csv(Path('../arquivos/Test.csv'))
 

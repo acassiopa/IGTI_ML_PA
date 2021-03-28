@@ -1,13 +1,15 @@
 from datetime import date, timedelta
-from pandas import DataFrame, read_csv, DatetimeIndex
+from pandas import DataFrame, read_csv
 from pathlib import Path
 
-# Obtem dados de notícias
-news_df = read_csv(Path('../arquivos/mongo_export.csv'), parse_dates=[5])
+# Constants
+theta = 0.003 # variation threshold to consider the effect as pos/neutral/neg
 
-# Obtem séries temporais de preço por empresa
-price_hist = read_csv(Path('../arquivos/BBAS3.SA.csv'), parse_dates=[0])
-# price_hist.set_index(DatetimeIndex(price_hist['Date']), inplace=True)
+# news data
+news_df = read_csv(Path('../arquivos/BBAS3_prep.csv'), parse_dates=[4])
+
+# price series
+price_hist = read_csv(Path('../arquivos/BBAS3_yahoo.csv'), parse_dates=[0])
 
 def label_by_price_trend(news_date: date, prices: DataFrame) -> int:
     """ Indica se apos data de publicação da noticia houve aumento ou diminuição
@@ -17,21 +19,19 @@ def label_by_price_trend(news_date: date, prices: DataFrame) -> int:
          0 : Não causou impacto (neutro)
         +1 : Impacto positivo
     """
-    # Constants
-    theta = 0.02 # variation threshold to consider the effect as pos/neutral/neg
-    future_amount = 3 # amount of days into the future to consider
-
+    date = news_date
+    # locate news date in time series
     i = prices.loc[prices['Date'] == str(news_date.date())].index
     while i.size == 0: # dia não util
         date = date + timedelta(days=1)
         i = prices.loc[prices['Date'] == str(date.date())].index
 
 
-    current_value = prices['Close'][i]
-    future_value =  prices['Close'][i+future_amount]
+    previous_close = prices['Close'][i[0] - 1]
+    news_day_close =  prices['Close'][i[0]]
 
     # price increase or decrease in %
-    delta = (future_value - current_value) / 100
+    delta = (news_day_close - previous_close) / 100
     
 
     if abs(delta) >= theta:
@@ -41,4 +41,4 @@ def label_by_price_trend(news_date: date, prices: DataFrame) -> int:
 
 news_df['cls_influence'] = news_df['datetime'].apply(label_by_price_trend, args=(price_hist,))
 
-news_df.to_csv(Path('../arquivos/news_data_cls.csv'))
+news_df.to_csv(Path('../arquivos/BBAS3_cls.csv'), index=False)
