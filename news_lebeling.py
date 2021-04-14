@@ -3,7 +3,7 @@ from pandas import DataFrame, read_csv
 from pathlib import Path
 
 # Constants
-theta = 0.003 # variation threshold to consider the effect as pos/neutral/neg
+theta = 0.000 # variation threshold to consider the effect as pos/neutral/neg
 
 # news data
 news_df = read_csv(Path('../arquivos/BBAS3_prep.csv'), parse_dates=[4])
