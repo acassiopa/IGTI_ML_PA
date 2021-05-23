@@ -38,11 +38,10 @@ class InfoMoneyParser(SoupParser):
         valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a', 'span', 'ul', 'li']
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
                 article_date = soup.find('time')['datetime']
                 article_date= parser.parse(article_date, ignoretz=True)
                 article_tag = soup.find(class_='article-content')
@@ -67,11 +66,10 @@ class InvestingParser(SoupParser):
         parserinfo = parser.parserinfo(dayfirst=True)
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
                 article_date = soup.find(class_='contentSectionDetails').span.get_text()
                 article_date= parser.parse(article_date, parserinfo=parserinfo, ignoretz=True)
                 article_tag = soup.find(class_='articlePage')
@@ -97,11 +95,10 @@ class MoneyTimesParser(SoupParser):
         parserinfo = parser.parserinfo(dayfirst=True)
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
                 article_date = soup.find(class_='single-meta__date').get_text()
                 article_date= parser.parse(article_date, parserinfo=parserinfo, ignoretz=True)
                 article_tag = soup.find(class_='single__text')
@@ -126,11 +123,10 @@ class SunoParser(SoupParser):
         valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a', 'span', 'ul', 'li']
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
                 article_date = soup.find('time')['datetime']
                 article_date= parser.parse(article_date, ignoretz=True)
                 article_tag = soup.find(class_='newsContent__article')
@@ -155,20 +151,28 @@ class G1Parser(SoupParser):
         valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a', 'span', 'ul', 'li']
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
-                article_date = soup.find('time')['datetime']
-                article_date= parser.parse(article_date, ignoretz=True)
-                article_tag = soup.find('article')
-                p_list = article_tag.find_all('p', class_='content-text__container')
-                for p in p_list:
-                    for tag in p.find_all():
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
+                if url.endswith('ghtml'):
+                    article_date = soup.find('time')['datetime']
+                    article_date= parser.parse(article_date, ignoretz=True)
+                    article_tag = soup.find('article')
+                    p_list = article_tag.find_all('p', class_='content-text__container')
+                    for p in p_list:
+                        for tag in p.find_all():
+                            if tag.name not in valid_tags:
+                                tag.decompose()
+                    article_text = ' '.join(p.get_text(separator=' ', strip=True) for p in p_list)
+                elif url.endswith('html'):
+                    article_date = soup.find('abbr', class_='published').get_text()
+                    parserinfo = parser.parserinfo(dayfirst=True)
+                    article_date = parser.parse(article_date, parserinfo=parserinfo, ignoretz=True)
+                    article_tag = soup.find('div', id='materia-letra')
+                    for tag in article_tag.find_all():
                         if tag.name not in valid_tags:
                             tag.decompose()
-                article_text = ' '.join(p.get_text(separator=' ', strip=True) for p in p_list)
             except Exception as e:
                 print('ERRO NO PARSE DA URL ', url)
                 print(e)
@@ -187,11 +191,10 @@ class UOLParser(SoupParser):
         valid_tags = ['strong', 'b', 'em', 'i', 'p', 'a', 'span', 'ul', 'li']
 
         for url in self.url_list:
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            page = urlopen(req).read()
-            soup = BeautifulSoup(page, "html.parser")
-
             try:
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                page = urlopen(req).read()
+                soup = BeautifulSoup(page, "html.parser")
                 article_date = soup.find('p', class_='time')['ia-date-publish']
                 article_date= parser.parse(article_date, ignoretz=True)
                 article_tag = soup.find('div', class_='text')
